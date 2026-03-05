@@ -1,0 +1,43 @@
+.btnContainer {
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-right: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onTop {
+  position: relative;
+  z-index: 10;
+}
+
+.markdown p {
+  margin-bottom: 5px;
+}
+
+.postSetting {
+  position: absolute;
+  background-color: aliceblue;
+  border-radius: 5px;
+  padding: 3px 6px;
+  min-width: 100px;
+  width: auto;
+  height: auto;
+  top: 25px;
+
+  font-size: 0.9em;
+  color: black;
+}
+
+.postSetting div {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  cursor: pointer;
+}
+
+.postSetting div span {
+  margin-left: 5px;
+}
