@@ -5,6 +5,12 @@ import http from "../server/utils/axios"
 import axios from "axios"
 import useSignIn from 'react-auth-kit/hooks/useSignIn';
 
+/*For 2.3.3 - data length*/
+const LIMITS = {
+  username: { min: 3, max: 20 },
+  password: { min: 8, max: 64 },
+};
+
 const Login = () => {
   // Initialize as empty strings rather than null for easier form handling
   const [username, setUsername] = useState("");
@@ -23,6 +29,24 @@ const Login = () => {
     if (!username || !password) {
       setErrText("Input username and password!");
       return; // Stop here
+    }
+
+    /*For 2.3.3 - validate length, reject if out of range*/
+    if (username.length < LIMITS.username.min || username.length > LIMITS.username.max) {
+      setErrText(`Username must be between ${LIMITS.username.min} and ${LIMITS.username.max} characters.`);
+      return;
+    }
+
+    /*For 2.3.2 - Validate username character range (alphanumeric + underscore)*/
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setErrText("Username may only contain letters, numbers, and underscores.");
+      return;
+    }
+
+    /*For 2.3.3 - Validate password length*/
+    if (password.length < LIMITS.password.min || password.length > LIMITS.password.max) {
+      setErrText(`Password must be between ${LIMITS.password.min} and ${LIMITS.password.max} characters.`);
+      return;
     }
 
     setLoading(true);
@@ -51,10 +75,18 @@ const Login = () => {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
+        /*For 2.4.2 - Generic error messages...hope im not missing anything*/
+        if (status === 400)      setErrText("Invalid input.");
+        else if (status === 401) setErrText("Invalid credentials.");
+        else if (status === 404) setErrText("Invalid credentials.");
+        else if (status === 503) setErrText("Server is starting up... please wait.");
+        else                     setErrText("An error has occurred. Please try again.");
+        /**
         if (status === 404) setErrText("User does not exist.");
         else if (status === 401) setErrText("Wrong password.");
         else if (status === 503) setErrText("Server is starting up... please wait.");
         else setErrText("An error has occurred on the server.");
+        */
       } else {
         setErrText("Unable to connect to server.");
       }
@@ -79,6 +111,7 @@ const Login = () => {
                   type="text" 
                   placeholder="Username" 
                   value={username}
+                  maxLength={LIMITS.username.max} /*2.3.3*/
                   onChange={(e) => setUsername(e.target.value)} 
                 />
               </div>
@@ -89,6 +122,7 @@ const Login = () => {
                   type="password" 
                   placeholder="Password" 
                   value={password}
+                  maxLength={LIMITS.password.max} /*2.3.3*/
                   onChange={(e) => setPassword(e.target.value)} 
                 />
               </div>
