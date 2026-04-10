@@ -11,6 +11,7 @@ import { db_url } from "./database.js";
 import userRouter from "./routes/user-routes.js";
 import postRouter from "./routes/post-routes.js";
 import commentRouter from "./routes/comment-routes.js";
+import logRouter from "./routes/log-routes.js"; /*For 2.4.4*/
 
 const PORT = 3000;
 const app = express();
@@ -29,6 +30,7 @@ mongoose.connect(db_url, {
 app.use(userRouter);
 app.use(postRouter);
 app.use(commentRouter);
+app.use(logRouter); /*For 2.4.4*/
 
 ViteExpress.listen(app, PORT, () =>
   console.log(`🚀 Server is listening on port ${PORT}...`)
