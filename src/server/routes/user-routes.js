@@ -10,64 +10,57 @@ import "dotenv/config";
 import mongoose from "mongoose";
 
 userRouter.post("/api/login", async (req, res) => {
-  const data = req.body;
-  try {
-    // get user with username
-    const user = await UserModel.findOne({
-      username: data.username,
-    })
-      .lean()
-      .exec();
+  const { username, password } = req.body;
 
-    // throw error when user isnt found
+  try {
+    // 1. Find the user
+    const user = await UserModel.findOne({ username }).lean().exec();
+
     if (!user) {
-      res.sendStatus(404);
-      return;
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // validate password
-    compare(data.password, user.password, (err, result) => {
-      if (!result) {
-        // throw unauthorized error
-        res.sendStatus(401);
-        return;
-      }
+    // 2. Compare hashed password
+    // This is the magic part: it decrypts and compares for you
+    const isMatch = await compare(password, user.password);
 
-      // create jwt token
-      const token = sign(
-        {
-          id: user._id,
-          username: user.username,
-          role: user.role,
-        },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "1h",
-        }
-      );
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
 
-      res.cookie("jwt", token, {
-        httpOnly: true,
-        sameSite: "None",
-        secure: true,
-        maxAge: 24 * 60 * 60 * 1000,
-      });
+    // 3. Create JWT token
+    const token = sign(
+      {
+        id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
-      // send user object and jwt token
-      res.header("Access-Control-Expose-Headers", "*");
-      res.send(
-        JSON.stringify({
-          user: {
-            id: user._id,
-            username: user.username,
-            role: user.role,
-          },
-          token: token,
-        })
-      );
+    // 4. Set Cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
     });
+
+    // 5. Send Response
+    res.header("Access-Control-Expose-Headers", "*");
+    return res.json({
+      user: {
+        id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+      token: token,
+    });
+
   } catch (err) {
-    res.sendStatus(500);
+    console.error("Login error:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 

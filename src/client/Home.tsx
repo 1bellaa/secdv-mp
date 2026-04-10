@@ -13,70 +13,59 @@ import UserType from "../server/utils/UserType";
 const Home = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(true); // Added loading state
   const auth = useAuthUser<UserType>();
 
+  // Combined fetch logic
   useEffect(() => {
-    const getPosts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await http.get("/api/posts");
-        setPosts(response.data);
+        setLoading(true);
+        // If searchText is empty, get all, else search
+        const url = searchText.trim() === "" ? "/api/posts" : `/api/posts/${searchText}`;
+        const response = await http.get(url);
+        setPosts(Array.isArray(response.data) ? response.data : []); 
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 500) {
-            console.error("Database error.");
-          }
-        } else {
-          console.error(err);
-        }
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    getPosts();
-  }, []);
-
-  useEffect(() => {
     const delay = setTimeout(() => {
-      getSearch()
-    }, 1500);
+      fetchData();
+    }, searchText ? 500 : 0); // Only delay if user is typing
 
-    return () => clearTimeout(delay)
-  }, [searchText])
+    return () => clearTimeout(delay);
+  }, [searchText]);
 
-  const getSearch = async () => {
-    try {
-      const response = await http.get(`/api/posts/${searchText}`)
-      setPosts(response.data)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  const checkPosts = () => {
-    if (posts === undefined || posts.length === 0) {
-      return <div style={{ textAlign: "center" }}>Nothing to see here</div>;
+  const renderPosts = () => {
+    if (loading) return <div className="text-center mt-5">Loading posts...</div>;
+    
+    if (!posts || posts.length === 0) {
+      return <div className="text-center mt-5">Nothing to see here</div>;
     }
 
-    let postList: React.ReactElement[] = [];
-    posts.map((post) => {
-      postList.push(
+    return posts.map((post) => {
+      // Defensive check: handle both populated object or raw ID string
+      const postOwnerId = typeof post.userID === 'object' ? post.userID._id : post.userID;
+      
+      return (
         <Post
           key={post._id}
           id={post._id}
           isViewing={false}
-          isOwner={post.userID._id == auth?.id}
+          isOwner={postOwnerId === auth?.id}
         />
       );
     });
-
-    return postList;
   };
 
   return (
     <div>
-      <Navbar setSearchText={setSearchText} search={getSearch} />
-      {/* Posts list container */}
-      <div className="container" style={{ maxWidth: "85%" }}>
-        {checkPosts()}
+      <Navbar setSearchText={setSearchText} />
+      <div className="container" style={{ maxWidth: "85%", marginTop: "20px" }}>
+        {renderPosts()}
       </div>
     </div>
   );
