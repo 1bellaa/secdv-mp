@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import Home from "./Home";
-import UserPost from "./UserPost.jsx";
+import UserPost from "./UserPost";
 import Profile from "./Profile";
 import Login from "./Login";
 import Signup from "./Signup";
