@@ -46,7 +46,7 @@ const Signup = () => {
       return;
     }
     if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
-      setErrText("Username contains invalid characters.");
+      setErrText("Username contains invalid characters. It may only contain alphanumerics, dots, underscores, and hyphens.");
       return;
     }
 
