@@ -4,8 +4,13 @@ const UserSchema = new Schema({
   displayName: String,
   username: String,
   email: String,
-  password: String,
-  role: String
+  password: { type: String, required: true },
+  lastPasswordChange: { type: Date, default: Date.now },
+  // Store an array of previous password hashes (e.g., the last 5)
+  passwordHistory: { type: [String], default: [] },
+  role: String,
+  loginAttempts: { type: Number, required: true, default: 0 },
+  lockUntil: { type: Number }
 })
 export const UserModel = mongoose.model("users", UserSchema, "users")
 

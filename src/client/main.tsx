@@ -8,6 +8,7 @@ import Login from "./Login";
 import Signup from "./Signup";
 import CreatePost from "./CreatePost";
 import EditPost from "./EditPost";
+import ChangePassword from "./ChangePassword";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "./scss/main.scss";
@@ -35,6 +36,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route element={<AuthOutlet fallbackPath="/login" />}>
             <Route path="/home" element={<Home />} />
             <Route path="/create" element={<CreatePost />} />
+
+            <Route path="/change-password" element={<ChangePassword />} />
 
             <Route
               path="/edit/:id"

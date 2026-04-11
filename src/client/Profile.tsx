@@ -32,49 +32,39 @@ const Profile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await http.get(`/api/user/${username}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await http.get(`/api/user/${username}`);
         const user = response.data.user;
         setFullname(user.displayName);
         setPosts(response.data.posts);
 
+        // Check ownership
         if (auth?.id === user._id) {
           setIsOwner(true);
+        } else {
+          setIsOwner(false); // Reset if switching between profiles
         }
 
         getVotes(user._id);
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 404) {
-            console.error("User is not found.");
-            // redirect to error page
-            // maybe create an error component to show
-          }
-        } else {
-          console.error(err);
-        }
+        console.error(err);
       }
     };
 
-    const getVotes = async (id: String) => {
+    const getVotes = async (id: string) => {
       try {
         const response = await http.get(`/api/user/${id}/getvotes`);
-        if (response.data.length === 0) {
-          return;
+        if (response.data.length > 0) {
+          const data = response.data[0];
+          setTotalVotes(data.totalUpvotes - data.totalDownvotes);
         }
-        const data = response.data[0];
-        setTotalVotes(data.totalUpvotes - data.totalDownvotes);
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
     };
 
     getUser();
-  }, []);
+    // Added username to dependency array so it refreshes when switching profiles
+  }, [username, auth?.id]); 
 
   const handleLogout = () => {
     signout();
@@ -85,20 +75,28 @@ const Profile = () => {
     if (!isOwner) return null;
 
     return (
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-      }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {/* NEW: Change Password Button */}
+        <button
+          type="button"
+          className="btn btn-outline-primary align-self-start"
+          onClick={() => navigate("/change-password")}
+          style={{ marginTop: "15px" }}
+        >
+          Change Password
+        </button>
+
         <button
           type="button"
           className="btn btn-danger align-self-start"
           onClick={handleLogout}
-          style={{ marginTop: "15px" }}
-          >
+        >
           Logout
         </button>
 
-        {auth?.role === "admin" && <Link to="/admin">Admin Dashboard</Link>}
+        {auth?.role === "admin" && (
+          <Link to="/admin" className="mt-2">Admin Dashboard</Link>
+        )}
       </div>
     );
   };

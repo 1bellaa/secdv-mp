@@ -47,8 +47,8 @@ userRouter.post("/api/login", async (req, res) => {
   }
 
   try {
-    // 1. Find the user
-    const user = await UserModel.findOne({ username }).lean().exec();
+    // 1. Find the user (removed .lean() so we can interact with the document if needed)
+    const user = await UserModel.findOne({ username }).exec();
 
     if (!user) {
       /*For 2.4.6 - log authentication failure*/
@@ -58,8 +58,15 @@ userRouter.post("/api/login", async (req, res) => {
       // return res.status(404).json({ message: "User not found" });
     }
 
-    // 2. Compare hashed password
-    // This is the magic part: it decrypts and compares for you
+    // 2. Check if account is currently locked
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const remainingTime = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(403).json({ 
+        message: `Account locked. Try again in ${remainingTime} minutes.` 
+      });
+    }
+
+    // 3. Compare hashed password
     const isMatch = await compare(password, user.password);
 
     if (!isMatch) {
@@ -81,7 +88,7 @@ userRouter.post("/api/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    // 4. Set Cookie
+    // 6. Set Cookie
     res.cookie("jwt", token, {
       httpOnly: true,
       sameSite: "None",
@@ -92,7 +99,9 @@ userRouter.post("/api/login", async (req, res) => {
     /*For 2.4.6 - Log successful authentication*/
     logEvent("AUTH", "SUCCESS", { route: "POST /api/login", ip, username });
 
-    // 5. Send Response
+    logEvent("AUTH", "SUCCESS", { route: "POST /api/login", ip, username });
+
+    // 7. Send Response
     res.header("Access-Control-Expose-Headers", "*");
     return res.json({
       user: {
