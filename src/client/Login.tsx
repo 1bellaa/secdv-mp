@@ -75,6 +75,8 @@ const Login = () => {
 
       if (signedIn) {
         navigate("/home");
+      } else {
+        setErrText("Login failed. Please try again.");
       }
       
     } catch (err) {
