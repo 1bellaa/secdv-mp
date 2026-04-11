@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import Home from "./Home";
 import UserPost from "./UserPost.jsx";
@@ -22,6 +24,18 @@ import AuthOutlet from "@auth-kit/react-router/AuthOutlet";
 import Admin from "./Admin";
 import About from "./about";
 
+interface IUserData {
+  role: string;
+  username: string;
+}
+
+const AdminOutlet = () => {
+  const auth = useAuthUser<IUserData>();
+
+  // Requirement 2.2.2: Fail Securely
+  // If the user's role isn't 'admin', we bounce them to /home
+  return auth?.role === 'admin' ? <Outlet /> : <Navigate to="/home" replace />;
+};
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -59,10 +73,15 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
               element={<UserPost />}
             />
 
-            <Route 
+            {/* Requirement 2.2.3: Enforce Logic Flow */}
+            <Route element={<AdminOutlet />}>
+              <Route path="/admin" element={<Admin />} />
+            </Route>
+
+            {/* <Route 
               path="/admin"
               element={<Admin />}
-            />
+            /> */}
           </Route>
         </Routes>
       </BrowserRouter>
