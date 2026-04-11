@@ -9,6 +9,8 @@ import Signup from "./Signup";
 import CreatePost from "./CreatePost";
 import EditPost from "./EditPost";
 import ChangePassword from "./ChangePassword";
+import ResetPassword from "./ResetPassword";
+import RequestReset from "./RequestReset";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "./scss/main.scss";
@@ -32,13 +34,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/signup" element={<Signup />} />
           <Route path="/about" element={<About />} />
 
+          <Route path="/forgot-password" element={<RequestReset />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           {/* Protected routes */}
           <Route element={<AuthOutlet fallbackPath="/login" />}>
             <Route path="/home" element={<Home />} />
             <Route path="/create" element={<CreatePost />} />
 
             <Route path="/change-password" element={<ChangePassword />} />
-
             <Route
               path="/edit/:id"
               element={<EditPost />}

@@ -10,7 +10,16 @@ const UserSchema = new Schema({
   passwordHistory: { type: [String], default: [] },
   role: String,
   loginAttempts: { type: Number, required: true, default: 0 },
-  lockUntil: { type: Number }
+  lockUntil: { type: Number },
+  lastActivity: {
+    method: { type: String }, // "Successful" or "Unsuccessful"
+    timestamp: { type: Date },
+    ip: { type: String }
+  },
+  securityQuestion: { type: String, required: true },
+  securityAnswer: { type: String, required: true }, // This will be a hash
+  resetPasswordToken: { type: String, default: undefined },
+  resetPasswordExpires: { type: Date, default: undefined },
 })
 export const UserModel = mongoose.model("users", UserSchema, "users")
 

@@ -17,8 +17,17 @@ const Signup = () => {
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [securityQuestion, setSecurityQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
   const [errText, setErrText] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const QUESTIONS = [
+    "What was the name of your first pet?",
+    "What is your mother's maiden name?",
+    "What was the make of your first car?",
+    "In what city were you born?"
+  ];
 
   const navigate = useNavigate();
 
@@ -26,8 +35,8 @@ const Signup = () => {
     setErrText("");
     
     // 1. Check for missing fields
-    if (!username || !fullname || !email || !password) {
-      setErrText("Please fill in all fields.");
+    if (!username || !fullname || !email || !password || !securityQuestion || !securityAnswer) {
+      setErrText("Please fill in all fields, including security details.");
       return;
     }
 
@@ -74,7 +83,9 @@ const Signup = () => {
         username,
         fullname,
         email,
-        password
+        password,
+        securityQuestion, 
+        securityAnswer
       });
 
       if (res.status === 201) {
@@ -94,49 +105,51 @@ const Signup = () => {
   return (
     <div>
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
-        <div className="card shadow-sm" style={{ width: "100%", maxWidth: "400px" }}>
+      <div className="container d-flex justify-content-center align-items-center py-5" style={{ minHeight: "80vh" }}>
+        <div className="card shadow-sm" style={{ width: "100%", maxWidth: "450px" }}>
           <div className="card-body p-4">
             <form onSubmit={(e) => e.preventDefault()}>
               <h1 className="h3 mb-4 fw-bold">Sign up</h1>
               
               <div className="mb-3">
+                <input className="form-control" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+              </div>
+
+              <div className="mb-3">
+                <input className="form-control" type="text" placeholder="Full Name" value={fullname} onChange={(e) => setFullname(e.target.value)} />
+              </div>
+
+              <div className="mb-3">
+                <input className="form-control" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+
+              <div className="mb-3">
+                <input className="form-control" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+
+              <hr />
+              <p className="small text-muted mb-2">Security Question (for password recovery)</p>
+              
+              <div className="mb-3">
+                <select 
+                  className="form-select" 
+                  value={securityQuestion} 
+                  onChange={(e) => setSecurityQuestion(e.target.value)}
+                >
+                  <option value="" disabled>Select a question...</option>
+                  {QUESTIONS.map((q, index) => (
+                    <option key={index} value={q}>{q}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-3">
                 <input 
-                  className={`form-control ${errText && !username ? "is-invalid" : ""}`} 
+                  className="form-control" 
                   type="text" 
-                  placeholder="Username" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)} 
-                />
-              </div>
-
-              <div className="mb-3">
-                <input 
-                  className={`form-control ${errText && !fullname ? "is-invalid" : ""}`} 
-                  type="text" 
-                  placeholder="Full Name" 
-                  value={fullname}
-                  onChange={(e) => setFullname(e.target.value)} 
-                />
-              </div>
-
-              <div className="mb-3">
-                <input 
-                  className={`form-control ${errText && !email ? "is-invalid" : ""}`} 
-                  type="email" 
-                  placeholder="Email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)} 
-                />
-              </div>
-
-              <div className="mb-3">
-                <input 
-                  className={`form-control ${errText && !password ? "is-invalid" : ""}`} 
-                  type="password" 
-                  placeholder="Password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="Your Answer" 
+                  value={securityAnswer} 
+                  onChange={(e) => setSecurityAnswer(e.target.value)} 
                 />
               </div>
 

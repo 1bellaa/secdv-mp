@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar";
 import Post from "./components/Post";
+import NoticeBar from "./NoticeBar";
 
 // hooks
 import { useEffect, useState } from "react";
@@ -63,7 +64,10 @@ const Home = () => {
 
   return (
     <div>
+      <NoticeBar /> 
+      
       <Navbar setSearchText={setSearchText} />
+      
       <div className="container" style={{ maxWidth: "85%", marginTop: "20px" }}>
         {renderPosts()}
       </div>

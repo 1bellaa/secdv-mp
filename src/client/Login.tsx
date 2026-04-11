@@ -59,6 +59,11 @@ const Login = () => {
         password: password
       })
 
+      // SAVE THE NOTICE FOR THE NEXT PAGE
+      if (response.data.lastNotice) {
+        sessionStorage.setItem("last_login_report", JSON.stringify(response.data.lastNotice));
+      }
+
       const signedIn = signIn({
         auth: {
           token: response.data.token,
@@ -140,7 +145,11 @@ const Login = () => {
 
               {errText && <p className="text-danger small">{errText}</p>}
               
-              <p className="text-muted small">Forgot your password?</p>
+              <div className="text-end mb-3">
+                <Link to="/forgot-password" size="sm" className="text-decoration-none small">
+                  Forgot password?
+                </Link>
+              </div>
               <p className="text-muted small">
                 Dont have an account? <Link to="/signup">Signup.</Link>
               </p>
