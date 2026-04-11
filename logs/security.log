@@ -25,6 +25,11 @@
 {"timestamp":"2026-04-11T07:33:19.089Z","type":"AUTH","status":"SUCCESS","route":"POST /api/reset-password","ip":"::ffff:127.0.0.1","userId":"69d9f690339bb9496dd3c537"}
 {"timestamp":"2026-04-11T07:33:29.539Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"realDiego"}
 {"timestamp":"2026-04-11T07:34:23.346Z","type":"AUTH","status":"SUCCESS","route":"POST /api/reset-password","ip":"::ffff:127.0.0.1","userId":"69d9f690339bb9496dd3c537"}
+{"timestamp":"2026-04-11T08:21:26.092Z","type":"AUTH","status":"FAILURE","route":"POST /api/login","ip":"::1","username":"test","reason":"Wrong password"}
+{"timestamp":"2026-04-11T08:21:58.130Z","type":"AUTH","status":"FAILURE","route":"POST /api/login","ip":"::1","username":"realDiego","reason":"Wrong password"}
+{"timestamp":"2026-04-11T08:23:44.485Z","type":"AUTH","status":"SUCCESS","route":"POST /api/signup","ip":"::1","username":"JuanCruz"}
+{"timestamp":"2026-04-11T08:24:00.529Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JuanCruz"}
+{"timestamp":"2026-04-11T09:06:31.802Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JuanCruz"}
 {"timestamp":"2026-04-11T14:59:32.522Z","type":"AUTH","status":"SUCCESS","route":"POST /api/signup","ip":"::ffff:127.0.0.1","username":"rachel"}
 {"timestamp":"2026-04-11T15:01:14.682Z","type":"AUTH","status":"FAILURE","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"rachel","reason":"Wrong password"}
 {"timestamp":"2026-04-11T15:01:19.539Z","type":"AUTH","status":"FAILURE","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"rache","reason":"User not found"}
