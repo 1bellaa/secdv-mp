@@ -117,63 +117,18 @@ const Admin = () => {
 
         {/* Security Logs Tab */}
         {activeTab === "logs" && (
-        <div>
-            {/* Filter Bar */}
-            <div className="d-flex gap-2 mb-3">
-              {(["", "AUTH", "ACCESS_CONTROL", "VALIDATION"] as const).map((type) => (
-              <button
-                key={type}
-                className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
-                onClick={() => setLogFilter(type.trim())}
-              >
-                {type === "" ? "All" : type}
-              </button>
-            ))}
-            </div>
-
-            {filteredLogs.length === 0 ? (
-              <div className="text-center text-muted">No logs found.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-sm table-hover table-bordered align-middle">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Timestamp</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLogs.map((log, i) => {
-                      const { timestamp, type, status, ...details } = log;
-                      return (
-                        <tr key={i}>
-                          <td className="text-nowrap small">
-                            {new Date(timestamp).toLocaleString()}
-                          </td>
-                          <td>
-                            <span className={`badge ${getTypeBadgeClass(type)}`}>
-                              {type}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`badge ${getBadgeClass(status)}`}>
-                              {status}
-                            </span>
-                          </td>
-                          <td className="small">
-                            {Object.entries(details).map(([k, v]) => (
-                              <span key={k} className="me-3">
-                                <strong>{k}:</strong> {String(v)}
-                              </span>
-                            ))}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+          auth?.role === "admin" ? (
+            <div>
+              <div className="d-flex gap-2 mb-3">
+                {(["", "AUTH", "ACCESS_CONTROL", "VALIDATION"] as const).map((type) => (
+                  <button
+                    key={type}
+                    className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
+                    onClick={() => setLogFilter(type.trim())}
+                  >
+                    {type === "" ? "All" : type}
+                  </button>
+                ))}
               </div>
 
               {filteredLogs.length === 0 ? (
