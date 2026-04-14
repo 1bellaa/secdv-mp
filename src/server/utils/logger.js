@@ -27,13 +27,24 @@ export const logEvent = (type, status, details = {}) => {
 
 export const readLogs = () => {
   try {
+    if (!fs.existsSync(LOG_FILE)) return []; // Prevent error if file doesn't exist yet
+
     const raw = fs.readFileSync(LOG_FILE, "utf-8");
     return raw
-      .trim()
       .split("\n")
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
-  } catch {
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0) // Remove empty lines
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch (parseErr) {
+          console.error("Skipping malformed log line:", line);
+          return null;
+        }
+      })
+      .filter((entry) => entry !== null); // Remove the failed parses
+  } catch (err) {
+    console.error("Log read error:", err);
     return [];
   }
 };

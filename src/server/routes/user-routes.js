@@ -1,3 +1,4 @@
+import { authenticateToken } from "../utils/auth.js";
 import { Router } from "express";
 const userRouter = Router();
 import { hash, compare } from "bcrypt";
@@ -10,6 +11,7 @@ import { PostModel, UserModel } from "../schemas.js";
 import "dotenv/config";
 import mongoose from "mongoose";
 import { readLogs, logEvent } from "../utils/logger.js";
+
 
 /*For 2.3.3 - data length*/
 const LIMITS = {
@@ -192,8 +194,9 @@ userRouter.post("/api/signup", async (req, res) => {
   }
 });
 
-userRouter.post("/api/user/change-password", async (req, res) => {
-  const { userId, oldPassword, newPassword, securityAnswer } = req.body;
+userRouter.post("/api/user/change-password", authenticateToken, async (req, res) => {
+  const userId = req.user.id; // Securely retrieved from JWT
+  const { oldPassword, newPassword, securityAnswer } = req.body;
   const ip = req.ip;
 
   // const MIN_AGE = 24 * 60 * 60 * 1000; // 24 hours in milliseconds

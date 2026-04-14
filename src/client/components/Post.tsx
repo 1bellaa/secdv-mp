@@ -29,6 +29,7 @@ const Post = (props: {
   isViewing?: boolean;
   isOwner: boolean;
   isAdmin? : boolean;
+  canModerate?: boolean;
 }) => {
   const [username, setUsername] = useState("");
   const [title, setTitle] = useState("");
