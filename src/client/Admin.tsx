@@ -39,7 +39,7 @@ const Admin = () => {
 
   const filteredLogs = logs.filter((log) => {
     if (!logFilter) return true;
-    return log.type === logFilter;
+    return log.type?.trim() === logFilter.trim(); // pls work
   });
 
   const checkPosts = () => {
@@ -113,15 +113,15 @@ const Admin = () => {
           <div>
             {/* Filter Bar */}
             <div className="d-flex gap-2 mb-3">
-              {["", "AUTH", "ACCESS_CONTROL", "VALIDATION"].map((type) => (
-                <button
-                  key={type}
-                  className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
-                  onClick={() => setLogFilter(type)}
-                >
-                  {type === "" ? "All" : type}
-                </button>
-              ))}
+              {(["", "AUTH", "ACCESS_CONTROL", "VALIDATION"] as const).map((type) => (
+              <button
+                key={type}
+                className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
+                onClick={() => setLogFilter(type.trim())}
+              >
+                {type === "" ? "All" : type}
+              </button>
+            ))}
             </div>
 
             {filteredLogs.length === 0 ? (
