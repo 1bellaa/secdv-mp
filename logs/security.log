@@ -45,3 +45,8 @@
 {"timestamp":"2026-04-11T15:45:09.332Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"rachel"}
 {"timestamp":"2026-04-11T15:49:07.936Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"rachel"}
 {"timestamp":"2026-04-11T15:51:36.790Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::ffff:127.0.0.1","username":"rachel"}
+{"timestamp":"2026-04-14T10:19:58.462Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JohnSmith"}
+{"timestamp":"2026-04-14T10:20:22.173Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JaneDoe"}
+{"timestamp":"2026-04-14T10:21:20.676Z","type":"ACCESS_CONTROL","status":"SUCCESS","action":"DELETE_POST","deletedBy":"JaneDoe","role":"manager","postID":"69d71ce1cdc5eea6521bbd18"}
+{"timestamp":"2026-04-14T10:28:51.422Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JuanCruz"}
+{"timestamp":"2026-04-14T10:38:35.913Z","type":"AUTH","status":"SUCCESS","route":"POST /api/login","ip":"::1","username":"JuanCruz"}

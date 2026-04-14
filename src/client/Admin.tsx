@@ -37,11 +37,11 @@ const Admin = () => {
     getReportedPosts();
 
     // 2. Wrap getLogs in a role check
-    if (auth?.role === "admin") {
-      getLogs();
+    if (auth?.role !== "admin" && activeTab === "logs") {
+      setActiveTab("posts");
     }
-
-  }, [auth?.role]); // Added auth?.role as a dependency
+  }, [auth?.role]);
+   
 
   const filteredLogs = logs.filter((log) => {
     if (!logFilter) return true;

@@ -48,6 +48,57 @@ const Post = (props: {
   const navigate = useNavigate();
   const settingsRef = useRef<HTMLDivElement>(null);
 
+  // useEffect(() => {
+  //   const getPost = async () => {
+  //     try {
+  //       const response = await http.get(`/api/post/${props.id}`);
+  //       const data = response.data;
+
+  //       setTitle(data.title);
+  //       setUsername(data.userID.username);
+  //       setContent(data.body);
+  //       setDate(data.createdAt);
+  //     } catch (err) {
+  //       if (axios.isAxiosError(err)) {
+  //         if (err.response?.status === 500) {
+  //           console.error("Database error.");
+  //         }
+  //       } else {
+  //         console.error(err);
+  //       }
+  //     }
+  //   };
+
+  //   getPost();
+
+  //   const getVotes = async () => {
+  //     try {
+  //       const response = await http.get(`/api/post/${props.id}/getvotes`);
+  //       setVoteCount(response.data[0].totalVotes);
+
+  //       if (response.data[0].upvotes.includes(auth?.id)) {
+  //         setIsUpvoted(true);
+  //       }
+
+  //       if (response.data[0].downvotes.includes(auth?.id)) {
+  //         setIsDownvoted(true);
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+
+  //   getVotes();
+
+  //   const clickHandler = (e: MouseEvent) => {
+  //     if (!settingsRef?.current?.contains(e.target as Node)) {
+  //       setIsSetting(false);
+  //     }
+  //   }
+
+  //   document.addEventListener("mousedown", clickHandler)
+  // });
+
   useEffect(() => {
     const getPost = async () => {
       try {
@@ -69,35 +120,46 @@ const Post = (props: {
       }
     };
 
-    getPost();
-
     const getVotes = async () => {
       try {
         const response = await http.get(`/api/post/${props.id}/getvotes`);
-        setVoteCount(response.data[0].totalVotes);
+        
+        // Check if data exists before accessing index [0]
+        if (response.data && response.data.length > 0) {
+          setVoteCount(response.data[0].totalVotes);
 
-        if (response.data[0].upvotes.includes(auth?.id)) {
-          setIsUpvoted(true);
-        }
-
-        if (response.data[0].downvotes.includes(auth?.id)) {
-          setIsDownvoted(true);
+          if (response.data[0].upvotes.includes(auth?.id)) {
+            setIsUpvoted(true);
+          }
+          if (response.data[0].downvotes.includes(auth?.id)) {
+            setIsDownvoted(true);
+          }
         }
       } catch (err) {
-        console.error(err);
+        console.error("Vote fetch error:", err);
       }
     };
 
-    getVotes();
+    // Only run if we have an ID
+    if (props.id) {
+      getPost();
+      getVotes();
+    }
 
     const clickHandler = (e: MouseEvent) => {
       if (!settingsRef?.current?.contains(e.target as Node)) {
         setIsSetting(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", clickHandler)
-  });
+    document.addEventListener("mousedown", clickHandler);
+
+    // CLEANUP: This removes the listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", clickHandler);
+    };
+
+  }, [props.id, auth?.id]); 
 
   const checkIfUpvoted = () => {
     if (isUpvoted) {
