@@ -45,7 +45,7 @@ const Admin = () => {
 
   const filteredLogs = logs.filter((log) => {
     if (!logFilter) return true;
-    return log.type?.trim() === logFilter.trim(); // pls work
+    return log.type?.trim() === logFilter.trim();
   });
 
   const checkPosts = () => {
@@ -117,7 +117,7 @@ const Admin = () => {
 
         {/* Security Logs Tab */}
         {activeTab === "logs" && (
-          <div>
+        <div>
             {/* Filter Bar */}
             <div className="d-flex gap-2 mb-3">
               {(["", "AUTH", "ACCESS_CONTROL", "VALIDATION"] as const).map((type) => (
