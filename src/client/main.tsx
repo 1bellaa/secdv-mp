@@ -33,8 +33,10 @@ const AdminOutlet = () => {
   const auth = useAuthUser<IUserData>();
 
   // Requirement 2.2.2: Fail Securely
-  // If the user's role isn't 'admin', we bounce them to /home
-  return auth?.role === 'admin' ? <Outlet /> : <Navigate to="/home" replace />;
+  // Allow both 'admin' AND 'manager' to pass through to the dashboard
+  const isPrivileged = auth?.role === 'admin' || auth?.role === 'manager';
+
+  return isPrivileged ? <Outlet /> : <Navigate to="/home" replace />;
 };
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

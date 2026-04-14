@@ -87,7 +87,9 @@ const Admin = () => {
     <div>
       <Navbar />
       <div className="container" style={{ maxWidth: "85%" }}>
-        <h2 className="my-3">Admin Dashboard</h2>
+        <h2 className="my-3">
+          {auth?.role === "admin" ? "Admin Dashboard" : "Management Dashboard"}
+        </h2>
 
         {/* Tabs */}
         <ul className="nav nav-tabs mb-4">
@@ -99,17 +101,21 @@ const Admin = () => {
               Reported Posts
             </button>
           </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "logs" ? "active" : ""}`}
-              onClick={() => setActiveTab("logs")}
-            >
-              Security Logs
-              {logs.length > 0 && (
-                <span className="badge bg-secondary ms-2">{logs.length}</span>
-              )}
-            </button>
-          </li>
+          
+          {/* ONLY show this tab to Admins */}
+          {auth?.role === "admin" && (
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === "logs" ? "active" : ""}`}
+                onClick={() => setActiveTab("logs")}
+              >
+                Security Logs
+                {logs.length > 0 && (
+                  <span className="badge bg-secondary ms-2">{logs.length}</span>
+                )}
+              </button>
+            </li>
+          )}
         </ul>
 
         {/* Reported Posts Tab */}

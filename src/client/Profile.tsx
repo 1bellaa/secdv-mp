@@ -94,31 +94,49 @@ const Profile = () => {
           Logout
         </button>
 
-        {auth?.role === "admin" && (
-          <Link to="/admin" className="mt-2">Admin Dashboard</Link>
+        {(auth?.role === "admin" || auth?.role === "manager") && (
+          <Link to="/admin" className="mt-2 btn btn-link p-0 text-start">
+            {auth?.role === "admin" ? "Admin Dashboard" : "Management Dashboard"}
+          </Link>
         )}
       </div>
     );
   };
+
+  // const checkPosts = () => {
+  //   if (posts == undefined || posts.length == 0) {
+  //     return <div style={{ textAlign: "center" }}>Nothing to see here</div>;
+  //   }
+
+  //   let postList: React.ReactElement[] = [];
+  //   posts.map((post: any) => {
+  //     postList.push(
+  //       <Post
+  //         key={post._id}
+  //         id={post._id}
+  //         isViewing={false}
+  //         isOwner={isOwner}
+  //       />
+  //     );
+  //   });
+
+  //   return postList;
+  // };
 
   const checkPosts = () => {
     if (posts == undefined || posts.length == 0) {
       return <div style={{ textAlign: "center" }}>Nothing to see here</div>;
     }
 
-    let postList: React.ReactElement[] = [];
-    posts.map((post: any) => {
-      postList.push(
-        <Post
-          key={post._id}
-          id={post._id}
-          isViewing={false}
-          isOwner={isOwner}
-        />
-      );
-    });
-
-    return postList;
+    return posts.map((post: any) => (
+      <Post
+        key={post._id}
+        id={post._id}
+        isViewing={false}
+        isOwner={auth?.id === post.userID._id} // Explicitly check against the post creator
+        canModerate={auth?.role === "admin" || auth?.role === "manager"}
+      />
+    ));
   };
 
   return (

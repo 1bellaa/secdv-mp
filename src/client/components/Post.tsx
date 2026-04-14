@@ -170,14 +170,43 @@ const Post = (props: {
     navigate(`/edit/${props.id}`);
   };
 
+  // const handleDelete = async () => {
+  //   if (confirm("Are you sure you want to delete your post forever?")) {
+  //     try {
+  //       const response = await http.delete(`/api/post/${props.id}`);
+  //       if (response.status === 200) {
+  //         navigate(0);
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   }
+  // };
+
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete your post forever?")) {
+    // Determine the context of the deletion
+    const isModeration = props.isAdmin || props.canModerate;
+    
+    // Requirement 2.2.3: Context-aware confirmation
+    const confirmMessage = isModeration 
+      ? "MODERATION ACTION: Are you sure you want to remove this reported content?" 
+      : "Are you sure you want to delete your post forever?";
+
+    if (confirm(confirmMessage)) {
       try {
         const response = await http.delete(`/api/post/${props.id}`);
         if (response.status === 200) {
+          // Different feedback for different roles
+          if (isModeration) {
+            alert("Content has been successfully removed by moderation.");
+          } else {
+            alert("Your post has been deleted.");
+          }
           navigate(0);
         }
       } catch (err) {
+        // Requirement 2.4.2: Generic error for security
+        alert("An error occurred. The action could not be completed.");
         console.error(err);
       }
     }
@@ -195,35 +224,75 @@ const Post = (props: {
     }
   }
 
+  // const getSettings = () => {
+  //   return (
+  //     <div className="postSetting" ref={settingsRef}>
+  //       <IconContext.Provider value={{ size: "0.9em" }}>
+  //         {!isOwner && (
+  //           <div id="report" onClick={() => handleReport()}>
+  //             <FaExclamationCircle />
+  //             <span>Report</span>
+  //           </div>
+  //         )}
+
+  //         {isOwner && (
+  //           <div id="edit" onClick={() => handleEdit()}>
+  //             <FaEdit />
+  //             <span>Edit</span>
+  //           </div>
+  //         )}
+
+  //         {isOwner && (
+  //           <div id="delete" onClick={() => handleDelete()}>
+  //             <FaTrash />
+  //             <span>Delete</span>
+  //           </div>
+  //         )}
+
+  //         {props.isAdmin && (
+  //           <div id="delete" onClick={() => handleDelete()}>
+  //             <BiXCircle />
+  //             <span style={{width: "100px"}}>Admin Delete</span>
+  //           </div>
+  //         )}
+  //       </IconContext.Provider>
+  //     </div>
+  //   );
+  // };
+
   const getSettings = () => {
     return (
       <div className="postSetting" ref={settingsRef}>
         <IconContext.Provider value={{ size: "0.9em" }}>
-          {!isOwner && (
+          {/* Regular users see Report */}
+          {!isOwner && !props.isAdmin && !props.canModerate && (
             <div id="report" onClick={() => handleReport()}>
               <FaExclamationCircle />
               <span>Report</span>
             </div>
           )}
 
+          {/* Owners see Edit/Delete */}
           {isOwner && (
-            <div id="edit" onClick={() => handleEdit()}>
-              <FaEdit />
-              <span>Edit</span>
-            </div>
+            <>
+              <div id="edit" onClick={() => handleEdit()}>
+                <FaEdit />
+                <span>Edit</span>
+              </div>
+              <div id="delete" onClick={() => handleDelete()}>
+                <FaTrash />
+                <span>Delete</span>
+              </div>
+            </>
           )}
 
-          {isOwner && (
-            <div id="delete" onClick={() => handleDelete()}>
-              <FaTrash />
-              <span>Delete</span>
-            </div>
-          )}
-
-          {props.isAdmin && (
+          {/* Privileged users (Admin OR Manager) see Moderate Delete */}
+          {(props.isAdmin || props.canModerate) && !isOwner && (
             <div id="delete" onClick={() => handleDelete()}>
               <BiXCircle />
-              <span style={{width: "100px"}}>Admin Delete</span>
+              <span style={{ width: "100px" }}>
+                {props.isAdmin ? "Admin Delete" : "Moderate Delete"}
+              </span>
             </div>
           )}
         </IconContext.Provider>

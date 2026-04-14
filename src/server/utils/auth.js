@@ -14,7 +14,6 @@ export const authenticateToken = (req, res, next) => {
       return res.status(403).json({ message: "Invalid or expired token." });
     }
     
-    // This makes 'req.user.id' and 'req.user.role' available in your routes!
     req.user = decoded; 
     next();
   });
