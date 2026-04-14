@@ -12,6 +12,7 @@ const requireAdmin = (req, res, next) => {
 
   if (!token) {
     /* For 2.4.7 - Log access control failure, no token provided */
+    logEvent("ACCESS_CONTROL", "FAILURE", { route: "GET /api/admin/logs", ip: req.ip, reason: "No token provided" });
     return res.status(401).json({ message: "Access denied." });
   }
 
@@ -20,6 +21,7 @@ const requireAdmin = (req, res, next) => {
 
     if (decoded.role !== "admin") {
       /*For 2.4.7 - Log access control failure, non-admin attempted log access */
+      logEvent("ACCESS_CONTROL", "FAILURE", { route: "GET /api/admin/logs", ip: req.ip, username: decoded.username, reason: "Non-admin attempted log access" });
       return res.status(403).json({ message: "Access denied." });
     }
 
@@ -27,6 +29,7 @@ const requireAdmin = (req, res, next) => {
     next();
   } catch {
     /*For 2.4.1 - error handlers, debug info not leaked*/
+    logEvent("ACCESS_CONTROL", "FAILURE", { route: "GET /api/admin/logs", ip: req.ip, reason: "Invalid token" });
     return res.status(401).json({ message: "Access denied." });
   }
 };

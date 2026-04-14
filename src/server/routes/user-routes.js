@@ -9,7 +9,7 @@ const { sign } = jwt;
 import { PostModel, UserModel } from "../schemas.js";
 import "dotenv/config";
 import mongoose from "mongoose";
-import { logEvent } from "../utils/logger.js";
+import { readLogs, logEvent } from "../utils/logger.js";
 
 /*For 2.3.3 - data length*/
 const LIMITS = {
@@ -157,8 +157,6 @@ userRouter.post("/api/signup", async (req, res) => {
     return res.status(400).json({ message: "Invalid input." });
   }
 
-  // ... (Keep your existing Regex checks for username, email, etc.) ...
-
   try {
     const doesUserExist = await UserModel.exists({ username: data.username });
     if (doesUserExist) {
@@ -245,6 +243,7 @@ userRouter.post("/api/user/change-password", async (req, res) => {
     // 4. [Requirement 2.1.10] Prevent Password Re-use (Current & History)
     const isSameAsCurrent = await compare(newPassword, user.password);
     if (isSameAsCurrent) {
+      logEvent("VALIDATION", "FAILURE", { route: "POST /api/user/change-password", ip, userId, reason: "New password is same as current password." });
       return res.status(400).json({ message: "New password cannot be the same as the current password." });
     }
 
@@ -273,7 +272,7 @@ userRouter.post("/api/user/change-password", async (req, res) => {
       }
     );
 
-    logEvent("AUTH", "SUCCESS", { route: "POST /api/user/change-password", ip, userId });
+    logEvent("AUTH", "SUCCESS", { route: "POST /api/user/change-password", ip, userId, reason: "Password changed successfully." });
     return res.status(200).json({ message: "Password updated successfully." });
 
   } catch (err) {
@@ -287,7 +286,10 @@ userRouter.post("/api/request-reset", async (req, res) => {
 
   try {
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Email not found." });
+    if (!user) {
+      logEvent("AUTH", "FAILURE", { route: "POST /api/request-reset", ip, reason: "Email not found" });
+      return res.status(404).json({ message: "Email not found." });
+    }
 
     // 1. Generate a random 40-character hex token
     const token = crypto.randomBytes(20).toString("hex");
@@ -330,6 +332,7 @@ userRouter.post("/api/reset-password/:token", async (req, res) => {
 
     // 2. Verify Security Answer (New Addition)
     if (!securityAnswer) {
+        logEvent("AUTH", "FAILURE", { route: "POST /api/reset-password", ip, userId: user._id, reason: "No security answer provided during reset" });
         return res.status(400).json({ message: "Security answer is required." });
     }
     const isAnswerCorrect = await compare(securityAnswer.toLowerCase().trim(), user.securityAnswer);
@@ -340,17 +343,20 @@ userRouter.post("/api/reset-password/:token", async (req, res) => {
 
     // 3. Complexity check
     if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$*]).{8,64}$/.test(newPassword)) {
+      logEvent("VALIDATION", "FAILURE", { route: "POST /api/reset-password", ip, reason: "Password complexity failed" });
       return res.status(400).json({ message: "Password does not meet complexity requirements." });
     }
 
     // 4. Prevent Re-use
     const isSameAsCurrent = await compare(newPassword, user.password);
     if (isSameAsCurrent) {
+      logEvent("VALIDATION", "FAILURE", { route: "POST /api/reset-password", ip, userId: user._id, reason: "New password is same as current password" });
       return res.status(400).json({ message: "Cannot use your current forgotten password." });
     }
 
     for (const historicHash of user.passwordHistory || []) {
       if (await compare(newPassword, historicHash)) {
+        logEvent("VALIDATION", "FAILURE", { route: "POST /api/reset-password", ip, userId: user._id, reason: "New password is in history" });
         return res.status(400).json({ message: "You cannot reuse any of your last 5 passwords." });
       }
     }
@@ -383,7 +389,10 @@ userRouter.get("/api/get-question-by-token/:token", async (req, res) => {
     resetPasswordToken: req.params.token,
     resetPasswordExpires: { $gt: Date.now() }
   });
-  if (!user) return res.status(404).json({ message: "Invalid token" });
+  if (!user) {
+    logEvent("AUTH", "FAILURE", { route: "GET /api/get-question-by-token", ip: req.ip, reason: "Invalid token" });
+    return res.status(404).json({ message: "Invalid token" });
+  }
   res.json({ question: user.securityQuestion });
 });
 
@@ -415,6 +424,7 @@ userRouter.get("/api/user/:username", async (req, res) => {
       })
     );
   } catch (err) {
+    logEvent("ACCESS_CONTROL", "FAILURE", { route: "GET /api/user/:username", ip: req.ip, reason: "User not found or database error" });
     console.error(err);
     res.sendStatus(404);
   }
