@@ -8,7 +8,12 @@ const UserSchema = new Schema({
   lastPasswordChange: { type: Date, default: Date.now },
   // Store an array of previous password hashes (e.g., the last 5)
   passwordHistory: { type: [String], default: [] },
-  role: String,
+  role: { 
+    type: String, 
+    required: true, 
+    enum: ["user", "manager", "admin"], // Only these 3 strings are allowed
+    default: "user" 
+  },
   loginAttempts: { type: Number, required: true, default: 0 },
   lockUntil: { type: Number },
   lastActivity: {

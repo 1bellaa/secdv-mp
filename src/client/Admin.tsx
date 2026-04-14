@@ -33,9 +33,15 @@ const Admin = () => {
       }
     };
 
+    // 1. Always fetch reported posts (for both Admin and Manager)
     getReportedPosts();
-    getLogs();
-  }, []);
+
+    // 2. Wrap getLogs in a role check
+    if (auth?.role === "admin") {
+      getLogs();
+    }
+
+  }, [auth?.role]); // Added auth?.role as a dependency
 
   const filteredLogs = logs.filter((log) => {
     if (!logFilter) return true;
@@ -57,7 +63,8 @@ const Admin = () => {
           id={post._id}
           isViewing={false}
           isOwner={post.userID._id == auth?.id}
-          isAdmin={true}
+          isAdmin={auth?.role === "admin"}
+          canModerate={auth?.role === "admin" || auth?.role === "manager"}
         />
       </div>
     ));
@@ -110,66 +117,74 @@ const Admin = () => {
 
         {/* Security Logs Tab */}
         {activeTab === "logs" && (
-          <div>
-            {/* Filter Bar */}
-            <div className="d-flex gap-2 mb-3">
-              {["", "AUTH", "ACCESS_CONTROL", "VALIDATION"].map((type) => (
-                <button
-                  key={type}
-                  className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
-                  onClick={() => setLogFilter(type)}
-                >
-                  {type === "" ? "All" : type}
-                </button>
-              ))}
-            </div>
-
-            {filteredLogs.length === 0 ? (
-              <div className="text-center text-muted">No logs found.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-sm table-hover table-bordered align-middle">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Timestamp</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLogs.map((log, i) => {
-                      const { timestamp, type, status, ...details } = log;
-                      return (
-                        <tr key={i}>
-                          <td className="text-nowrap small">
-                            {new Date(timestamp).toLocaleString()}
-                          </td>
-                          <td>
-                            <span className={`badge ${getTypeBadgeClass(type)}`}>
-                              {type}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`badge ${getBadgeClass(status)}`}>
-                              {status}
-                            </span>
-                          </td>
-                          <td className="small">
-                            {Object.entries(details).map(([k, v]) => (
-                              <span key={k} className="me-3">
-                                <strong>{k}:</strong> {String(v)}
-                              </span>
-                            ))}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+          auth?.role === "admin" ? (
+            <div>
+              {/* Filter Bar */}
+              <div className="d-flex gap-2 mb-3">
+                {["", "AUTH", "ACCESS_CONTROL", "VALIDATION"].map((type) => (
+                  <button
+                    key={type}
+                    className={`btn btn-sm ${logFilter === type ? "btn-dark" : "btn-outline-secondary"}`}
+                    onClick={() => setLogFilter(type)}
+                  >
+                    {type === "" ? "All" : type}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+
+              {filteredLogs.length === 0 ? (
+                <div className="text-center text-muted">No logs found.</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-sm table-hover table-bordered align-middle">
+                    <thead className="table-dark">
+                      <tr>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLogs.map((log, i) => {
+                        const { timestamp, type, status, ...details } = log;
+                        return (
+                          <tr key={i}>
+                            <td className="text-nowrap small">
+                              {new Date(timestamp).toLocaleString()}
+                            </td>
+                            <td>
+                              <span className={`badge ${getTypeBadgeClass(type)}`}>
+                                {type}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`badge ${getBadgeClass(status)}`}>
+                                {status}
+                              </span>
+                            </td>
+                            <td className="small">
+                              {Object.entries(details).map(([k, v]) => (
+                                <span key={k} className="me-3">
+                                  <strong>{k}:</strong> {String(v)}
+                                </span>
+                              ))}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* This part is what the "manager" role sees instead of the table */
+            <div className="alert alert-warning mt-3">
+              <strong>Access Denied:</strong> You do not have permission to view security logs. 
+              Please contact a System Administrator if you require access to this data.
+            </div>
+          )
         )}
       </div>
     </div>

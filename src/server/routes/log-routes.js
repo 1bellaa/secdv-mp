@@ -1,6 +1,6 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import { readLogs } from "../utils/logger.js";
+import { readLogs, logEvent } from "../utils/logger.js";
 import "dotenv/config";
 
 const logRouter = Router();
@@ -8,7 +8,7 @@ const logRouter = Router();
 /*For 2.4.4 - admins read logs*/
 const requireAdmin = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = req.cookies?.jwt || (authHeader && authHeader.split(" ")[1]);
 
   if (!token) {
     /* For 2.4.7 - Log access control failure, no token provided */
